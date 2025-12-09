@@ -1,0 +1,182 @@
+l<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Colorful Memory Match Game</title>
+        <style>
+            
+body {
+    padding: 0;
+    margin: 0;
+    background-color: #3498db;
+    box-sizing: border-box;
+
+}
+
+.container {
+    font-family: Arial, sans-serif;
+    background-color: #3498db;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.startMain {
+    margin-left: 20px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+h1 {
+    color: #fff;
+    text-align: center;
+    padding-bottom:50px;
+}
+
+#game-container {
+    display: grid;
+    grid-template-columns: repeat(4, 100px);
+    grid-gap: 10px;
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.card {
+    width: 100px;
+    height: 100px;
+    background-color: #ddd;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border-radius: 5px;
+}
+
+.matched {
+    background-color: #4CAF50;
+    color: #fff;
+}
+
+#score {
+    text-align: center;
+    font-size: 24px;
+    color: #fff;
+}
+
+#timer {
+    text-align: center;
+    font-size: 24px;
+    color: #fff;
+}
+
+#startbtn{
+    padding: 10px 20px;
+    background-color: white;
+    color: #3498db;
+    border: none;
+    font-weight: 900;
+}
+        </style>
+</head>
+
+<body>
+    <h1>Colorful Memory Match Game</h1>
+    <div class="container">
+        <div id="game-container">
+         <!-- Cards will be generated dynamically using JavaScript -->
+        </div>
+        <div class="startMain">
+            <p id="score">Score: 0</p>
+            <p id="timer">Time Left: 30</p>
+            <button id="startbtn">Start/Restart</button>
+        </div>
+    </div>
+    <script>
+        const colors = ['red', 'blue', 'green', 'purple', 'orange', 'pink', 'red', 'blue', 'green', 'purple', 'orange', 'pink'];
+let cards=shuffle(colors.concat(colors));
+let selectedCards=[];
+let score=0;
+let timeLeft=30;
+let gameInterval;
+const startbtn = document.getElementById('startbtn');
+const gameContainer = document.getElementById('game-container');
+const scoreElement = document.getElementById('score');
+const timerElement = document.getElementById('timer');
+function generateCards() {
+    for (const color of cards) {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.dataset.color = color;
+        card.textContent = '?';
+        gameContainer.appendChild(card);
+    }
+}
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+function handleCardClick(event) {
+    const card = event.target;
+    if (!card.classList.contains('card') || card.classList.contains('matched')) {
+        return;
+    }
+    card.textContent = card.dataset.color;
+    card.style.backgroundColor = card.dataset.color;
+    selectedCards.push(card);
+    if (selectedCards.length === 2) {
+        setTimeout(checkMatch, 500);
+    }
+}
+function checkMatch() {
+    const [card1, card2] = selectedCards;
+    if (card1.dataset.color === card2.dataset.color) {
+        card1.classList.add('matched');
+        card2.classList.add('matched');
+        score += 2;
+        scoreElement.textContent = `Score: ${score}`;
+    } else {
+        card1.textContent = '?';
+        card2.textContent = '?';
+        card1.style.backgroundColor = '#ddd';
+        card2.style.backgroundColor = '#ddd';
+    }
+    selectedCards = [];
+}
+function startGame() {
+    let timeLeft = 30;
+    startbtn.disabled = true;
+    score = 0; // Reset score to zero
+    scoreElement.textContent = `Score: ${score}`;
+    startGameTimer(timeLeft);
+    cards = shuffle(colors.concat(colors));
+    selectedCards = [];
+    gameContainer.innerHTML = '';
+    generateCards();
+    gameContainer.addEventListener('click', handleCardClick);
+}
+function startGameTimer(timeLeft) {
+    timerElement.textContent = `Time Left: ${timeLeft}`;
+    gameInterval = setInterval(() => {
+        timeLeft--;
+        timerElement.textContent = `Time Left: ${timeLeft}`;
+
+        if (timeLeft === 0) {
+            clearInterval(gameInterval);
+            let timeLeft = 30;
+            alert('Game Over!');
+            startbtn.disabled = false;
+        }
+    }, 1000);
+}
+startbtn.addEventListener('click', startGame);
+    </script>
+</body>
+</html>
